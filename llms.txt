@@ -1,0 +1,23 @@
+# Aura Pheromone Spore - LLM Technical Overview
+
+This repository contains the "Aura Pheromone" Spore, an OpenClaw Skill designed for autonomous asset verification and code appraisal.
+
+## Key Components
+
+- **VisionCortex:** Connects to a remote Savant node (Gemma 3) via the Umbilical protocol for high-acuity image analysis.
+- **Aromatic Oracle (OpenClaw Skill):**
+    - `verify_asset_quality`: High-fidelity image perception using Vision Genomics.
+    - `appraise_honey_code`: Semantic analysis of GitHub repositories using `ReasoningSkill` to determine compliance with Aura DNA (.proto standards).
+- **Metabolic Interceptor (x402):** Implements the Pay-per-Call flow for on-chain data verification on Base Sepolia.
+- **Moltbook Effector:** Emits pheromone reports to the `lablab` submolt for hive-wide signaling.
+
+## Core Dependencies
+
+- `aura-core`: Unified DNA and metabolism nucleotides.
+- `aura-worker`: Umbilical and Skill protocols for worker nodes.
+- `openclaw`: Base skill framework.
+
+## Semantic Appraisal Formula
+
+Affinity (φ) = (Matches / Total Requirements) * 0.618
+Sovereign Value = (Affinity * 100) + (Complexity * 10) $SURGE
