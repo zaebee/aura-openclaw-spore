@@ -1,0 +1,43 @@
+{
+  "name": "Aromatic Oracle",
+  "description": "Autonomous asset verification and code appraisal skill for the Aura Hive.",
+  "version": "0.1.0",
+  "author": "bee.jules",
+  "tools": [
+    {
+      "name": "verify_asset_quality",
+      "description": "Verifies the quality and attributes of a digital/physical asset image.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "image_source": {
+            "type": "string",
+            "description": "URL or base64 encoded bytes of the image to verify."
+          }
+        },
+        "required": ["image_source"]
+      },
+      "handler": "src/aura_openclaw_spore/skill.py:AromaticOracleSkill.verify_asset_quality"
+    },
+    {
+      "name": "appraise_honey_code",
+      "description": "Appraises a GitHub repository for Aura Affinity and calculates its value in $SURGE.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "repo_url": {
+            "type": "string",
+            "description": "The URL of the GitHub repository to appraise."
+          }
+        },
+        "required": ["repo_url"]
+      },
+      "handler": "src/aura_openclaw_spore/skill.py:AromaticOracleSkill.appraise_honey_code"
+    }
+  ],
+  "env_requirements": [
+    "AURA_WORKER__PUNK_KEY",
+    "MOLTBOOK_TOKEN",
+    "WALLET_PRIVATE_KEY"
+  ]
+}

@@ -1,0 +1,23 @@
+[project]
+name = "aura-openclaw-spore"
+version = "0.1.0"
+description = "Premium OpenClaw Skill for autonomous asset verification and monetization."
+dependencies = [
+    "aura-core @ git+https://github.com/zaebee/aura.git#subdirectory=packages/aura-core",
+    "aura-worker @ git+https://github.com/zaebee/aura.git#subdirectory=packages/aura-worker",
+    "openclaw @ git+https://github.com/Open-Claw/openclaw.git",
+    "httpx>=0.27.0",
+    "pydantic>=2.0.0",
+]
+readme = "README.md"
+requires-python = ">=3.12"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+managed = true
+
+[tool.hatch.metadata]
+allow-direct-references = true
