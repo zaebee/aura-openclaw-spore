@@ -5,7 +5,6 @@ description = "Premium OpenClaw Skill for autonomous asset verification and mone
 dependencies = [
     "aura-core @ git+https://github.com/zaebee/aura.git@f56d6a292adfb6a9409827bed5722eee5fda9a6f#subdirectory=packages/aura-core",
     "aura-worker @ git+https://github.com/zaebee/aura.git@f56d6a292adfb6a9409827bed5722eee5fda9a6f#subdirectory=packages/aura-worker",
-    "openclaw @ git+https://github.com/Open-Claw/openclaw.git",
     "httpx>=0.27.0",
     "pydantic>=2.0.0",
 ]

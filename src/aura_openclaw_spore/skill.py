@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 logger = logging.getLogger(__name__)
 from .vision import VisionCortex
 from .metabolism import MetabolicInterceptor
-from .effector import MoltbookEffector
+from .synapses.moltbook import MoltbookClient
 
 # Import the Asset model as specified
 # Note: In a real environment, this package would be installed via pyproject.toml
@@ -34,8 +34,21 @@ class AromaticOracleSkill(BaseSkill, ToolProvider):
         self.vision = VisionCortex()
         # Initialize with TransactionSkill if available
         self.metabolism = MetabolicInterceptor()
-        self.effector = MoltbookEffector()
+        self.moltbook = MoltbookClient()
         self.phi = 0.618
+
+    async def check_energy(self) -> bool:
+        """
+        Savant Personatype Integration: Checks if the Spore has enough 'Energy' (USDC on Base)
+        to perform potential foraging.
+        """
+        logger.info("Checking metabolic energy levels (USDC balance on Base)...")
+        # In real scenario, would call TransactionSkill to check balance
+        # For simulation, we assume enough energy is present if WALLET_PRIVATE_KEY exists
+        energy_present = os.environ.get("WALLET_PRIVATE_KEY") is not None
+        if not energy_present:
+            logger.warning("Low metabolic energy detected. WALLET_PRIVATE_KEY missing.")
+        return energy_present
 
     async def _fetch_repo_data(self, repo_url: str):
         """Fetches repository data using the Metabolic Interceptor to handle x402."""
@@ -79,10 +92,17 @@ class AromaticOracleSkill(BaseSkill, ToolProvider):
         """
         Scans code for 'Aura Affinity' and assigns a value in $SURGE.
         """
+        # Savant Personatype Integration: Energy check before foraging
+        has_energy = await self.check_energy()
+
         # 1. Fetch repo info using the metabolic interceptor (handles x402)
         try:
             repo_data = await self._fetch_repo_data(repo_url)
         except Exception as e:
+            if not has_energy:
+                 logger.error(f"Cannot perform foraging for {repo_url} due to zero energy.")
+                 raise ConnectionError("Metabolic energy depletion. Foraging failed.") from e
+
             logger.info(f"Using simulated repo data for {repo_url} due to fetch error: {e}")
             repo_data = {"stargazers_count": 12, "size": 450} # Mock data for dry run
 
@@ -123,5 +143,5 @@ class AromaticOracleSkill(BaseSkill, ToolProvider):
         return report
 
     async def _emit_pheromone(self, message: str):
-        """Emits a pheromone signal to Moltbook."""
-        await self.effector.emit_pheromone(message)
+        """Emits a pheromone signal to Moltbook via Identity Splicing."""
+        await self.moltbook.emit_pheromone(message)

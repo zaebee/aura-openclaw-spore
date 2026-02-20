@@ -112,7 +112,7 @@ wheels = [
 [[package]]
 name = "aura-core"
 version = "0.1.0"
-source = { git = "https://github.com/zaebee/aura.git?subdirectory=packages%2Faura-core#f56d6a292adfb6a9409827bed5722eee5fda9a6f" }
+source = { git = "https://github.com/zaebee/aura.git?subdirectory=packages%2Faura-core&rev=f56d6a292adfb6a9409827bed5722eee5fda9a6f#f56d6a292adfb6a9409827bed5722eee5fda9a6f" }
 dependencies = [
     { name = "betterproto", extra = ["compiler"] },
     { name = "grpcio-tools" },
@@ -135,8 +135,8 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "aura-core", git = "https://github.com/zaebee/aura.git?subdirectory=packages%2Faura-core" },
-    { name = "aura-worker", git = "https://github.com/zaebee/aura.git?subdirectory=packages%2Faura-worker" },
+    { name = "aura-core", git = "https://github.com/zaebee/aura.git?subdirectory=packages%2Faura-core&rev=f56d6a292adfb6a9409827bed5722eee5fda9a6f" },
+    { name = "aura-worker", git = "https://github.com/zaebee/aura.git?subdirectory=packages%2Faura-worker&rev=f56d6a292adfb6a9409827bed5722eee5fda9a6f" },
     { name = "httpx", specifier = ">=0.27.0" },
     { name = "pydantic", specifier = ">=2.0.0" },
 ]
@@ -144,7 +144,7 @@ requires-dist = [
 [[package]]
 name = "aura-worker"
 version = "0.1.0"
-source = { git = "https://github.com/zaebee/aura.git?subdirectory=packages%2Faura-worker#f56d6a292adfb6a9409827bed5722eee5fda9a6f" }
+source = { git = "https://github.com/zaebee/aura.git?subdirectory=packages%2Faura-worker&rev=f56d6a292adfb6a9409827bed5722eee5fda9a6f#f56d6a292adfb6a9409827bed5722eee5fda9a6f" }
 dependencies = [
     { name = "aiofiles" },
     { name = "aura-core" },
