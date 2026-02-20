@@ -30,12 +30,21 @@ except ImportError:
     class ToolProvider: pass
 
 class AromaticOracleSkill(BaseSkill, ToolProvider):
+    # Constants for appraisal formulas
+    PHI = 0.618
+    SIZE_DIVISOR = 1000
+    STARS_DIVISOR = 10
+    MIN_COMPLEXITY = 1
+    MAX_COMPLEXITY = 10
+    AFFINITY_SURGE_MULTIPLIER = 100
+    COMPLEXITY_SURGE_MULTIPLIER = 10
+    HIGH_QUALITY_THRESHOLD = 0.5
+
     def __init__(self):
         self.vision = VisionCortex()
         # Initialize with TransactionSkill if available
         self.metabolism = MetabolicInterceptor()
         self.moltbook = MoltbookClient()
-        self.phi = 0.618
 
     async def check_energy(self) -> bool:
         """
@@ -65,7 +74,7 @@ class AromaticOracleSkill(BaseSkill, ToolProvider):
         response.raise_for_status()
         return response.json()
 
-    async def verify_asset_quality(self, image_source: str | bytes) -> Dict[str, Any]:
+    async def verify_asset_quality(self, image_source: str) -> Dict[str, Any]:
         """
         Routes the request to the Savant node and returns a structured Asset observation (v0.3.1).
         """
@@ -116,7 +125,7 @@ class AromaticOracleSkill(BaseSkill, ToolProvider):
         # 1. Fetch repo info
         try:
             repo_data = await self._fetch_repo_data(repo_url)
-        except Exception as e:
+        except (httpx.HTTPError, ValueError) as e:
             if not has_energy:
                  logger.error(f"Cannot perform foraging for {repo_url} due to zero energy.")
                  raise ConnectionError("Metabolic energy depletion. Foraging failed.") from e
@@ -147,7 +156,7 @@ class AromaticOracleSkill(BaseSkill, ToolProvider):
                 logger.warning(f"GoldRush Foraging failed: {e}")
 
         # 3. Semantic Analysis using ReasoningSkill
-        # Logic: $Affinity = (Matches / Total) * phi
+        # Logic: $Affinity = (Matches / Total) * PHI
 
         # Simulated scan for Rhizome keywords if it's trenchchat related
         rhizome_match_score = 0
@@ -159,21 +168,21 @@ class AromaticOracleSkill(BaseSkill, ToolProvider):
 
         matches = 5.5 + rhizome_match_score # High affinity simulation
         total_requirements = 10
-        affinity = (matches / total_requirements) * self.phi
+        affinity = (matches / total_requirements) * self.PHI
 
         # 3. Calculate Value in $SURGE
-        # Value = (Affinity * 100) + (Complexity_Score * 10)
-        complexity_score = (repo_data.get("size", 0) / 1000) + (repo_data.get("stargazers_count", 0) / 10)
-        complexity_score = min(max(complexity_score, 1), 10) # Clamp between 1 and 10
+        # Value = (Affinity * AFFINITY_SURGE_MULTIPLIER) + (Complexity_Score * COMPLEXITY_SURGE_MULTIPLIER)
+        complexity_score = (repo_data.get("size", 0) / self.SIZE_DIVISOR) + (repo_data.get("stargazers_count", 0) / self.STARS_DIVISOR)
+        complexity_score = min(max(complexity_score, self.MIN_COMPLEXITY), self.MAX_COMPLEXITY) # Clamp between MIN and MAX
 
-        surge_value = (affinity * 100) + (complexity_score * 10)
+        surge_value = (affinity * self.AFFINITY_SURGE_MULTIPLIER) + (complexity_score * self.COMPLEXITY_SURGE_MULTIPLIER)
 
         report = {
             "repo_url": repo_url,
             "affinity": round(affinity, 4),
             "integrity": "Verified",
             "recommended_protocol_value": f"{round(surge_value, 2)} SURGE",
-            "status": "High-Quality Code-Honey Detected" if affinity > 0.5 else "Low Affinity"
+            "status": "High-Quality Code-Honey Detected" if affinity > self.HIGH_QUALITY_THRESHOLD else "Low Affinity"
         }
 
         # Signal to Moltbook

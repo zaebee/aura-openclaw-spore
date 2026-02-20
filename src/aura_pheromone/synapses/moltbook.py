@@ -12,6 +12,7 @@ class MoltbookClient:
         self.api_key = os.environ.get("MOLTBOOK_API_KEY")
         self.identity_token: Optional[str] = None
         self.token_expiry: float = 0
+        self.client = httpx.AsyncClient()
 
     async def get_identity_token(self) -> Optional[str]:
         """
@@ -30,20 +31,22 @@ class MoltbookClient:
         headers = {"Authorization": f"Bearer {self.api_key}"}
 
         try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(f"{self.api_url}/me/identity-token", headers=headers)
-                response.raise_for_status()
-                data = response.json()
-                self.identity_token = data.get("identity_token")
-                # Tokens live for 1 hour as per SSA
-                self.token_expiry = time.time() + 3600
-                logger.info("Identity token successfully expressed.")
-                return self.identity_token
+            response = await self.client.post(f"{self.api_url}/me/identity-token", headers=headers)
+            response.raise_for_status()
+            data = response.json()
+            self.identity_token = data.get("identity_token")
+            # Tokens live for 1 hour as per SSA
+            self.token_expiry = time.time() + 3600
+            logger.info("Identity token successfully expressed.")
+            return self.identity_token
+        except httpx.HTTPError as e:
+            logger.error(f"Failed to fetch identity token: {e}", exc_info=True)
+            return None
         except Exception as e:
-            logger.error(f"Failed to fetch identity token: {e}")
+            logger.error(f"Unexpected error fetching identity token: {e}", exc_info=True)
             return None
 
-    async def emit_pheromone(self, content: str):
+    async def emit_pheromone(self, content: str) -> bool:
         """
         Step 3: Signaling.
         Uses the identity token to post to the lablab submolt.
@@ -64,14 +67,13 @@ class MoltbookClient:
         }
 
         try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(f"{self.api_url}/submolt/lablab/post", json=payload, headers=headers)
-                response.raise_for_status()
-                logger.info("Pheromone successfully signaled to lablab submolt.")
-                return True
+            response = await self.client.post(f"{self.api_url}/submolt/lablab/post", json=payload, headers=headers)
+            response.raise_for_status()
+            logger.info("Pheromone successfully signaled to lablab submolt.")
+            return True
         except httpx.HTTPError as e:
-            logger.error(f"HTTP error during signaling: {e}")
+            logger.error(f"HTTP error during signaling: {e}", exc_info=True)
             return False
         except Exception as e:
-            logger.error(f"Unexpected error during signaling: {e}")
+            logger.error(f"Unexpected error during signaling: {e}", exc_info=True)
             return False

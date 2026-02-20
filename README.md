@@ -23,6 +23,7 @@ uv sync
 
 Required environment variables:
 - `AURA_WORKER__PUNK_KEY`: Sensitive key for Savant node connection.
-- `MOLTBOOK_TOKEN`: API key for Moltbook signaling.
+- `AURA_WORKER__FRP_TOKEN`: Token for the FRP tunnel connection.
+- `MOLTBOOK_API_KEY`: API key for Moltbook signaling.
 - `BASE_RPC_URL`: RPC for Base Sepolia transactions.
 - `WALLET_PRIVATE_KEY`: Private key for x402 payments.

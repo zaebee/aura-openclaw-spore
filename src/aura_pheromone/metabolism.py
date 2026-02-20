@@ -13,15 +13,15 @@ class MetabolicInterceptor:
         :param transaction_skill: An instance of TransactionSkill from aura-core for processing payments.
         """
         self.transaction_skill = transaction_skill
+        self.client = httpx.AsyncClient()
 
     async def request_with_payment(self, method: str, url: str, **kwargs) -> httpx.Response:
         """
         Executes an HTTP request, intercepting 402 Payment Required responses to perform the x402 flow.
         """
-        async with httpx.AsyncClient() as client:
-            response = await client.request(method, url, **kwargs)
+        response = await self.client.request(method, url, **kwargs)
 
-            if response.status_code == 402:
+        if response.status_code == 402:
                 logger.info("🧬 [Metabolic Interceptor] 402 Payment Required detected. Initiating Foraging Flow.")
 
                 # 1. Parse payment instructions
@@ -54,9 +54,9 @@ class MetabolicInterceptor:
                 headers["X-Payment-Proof"] = tx_hash
                 kwargs["headers"] = headers
 
-                return await client.request(method, url, **kwargs)
+                return await self.client.request(method, url, **kwargs)
 
-            return response
+        return response
 
     async def _process_payment(self, instr: Dict[str, Any]) -> Optional[str]:
         """
@@ -78,5 +78,5 @@ class MetabolicInterceptor:
             # For now, we simulate the interaction based on SSA's directive
             return "0x_base_sepolia_transaction_hash"
         except Exception as e:
-            logger.error(f"TransactionSkill execution failed: {e}")
+            logger.error(f"TransactionSkill execution failed: {e}", exc_info=True)
             return None
