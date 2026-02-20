@@ -1,5 +1,7 @@
 import os
 import logging
+import httpx
+from typing import Any, Dict
 from aura_worker import Umbilical, WorkerController, VisionSkill
 
 logger = logging.getLogger(__name__)
@@ -26,26 +28,51 @@ class VisionCortex:
             worker_id="colab-savant"
         )
 
-        # In a real scenario, we might need to wait for the tunnel to be active
-        # For this implementation, we'll assume the controller handles the connection
+        # In this implementation, we'll assume the controller handles the connection
         self.skill = VisionSkill(model_name="gemma3")
         self._initialized = True
         logger.info("VisionCortex initialized and connected to Savant node.")
 
-    async def ensure_active(self):
+    async def ping(self) -> Dict[str, Any]:
+        """
+        Hardened Verification Protocol:
+        1. Check if the frpc subprocess is in a Running state.
+        2. Perform a fast GET http://localhost:11434/api/tags via the tunnel.
+        3. Return a SystemVitals object with status: VITALS_STATUS_OK.
+        """
         if not self._initialized:
             await self.initialize()
 
-        # Check tunnel status if possible via controller
-        # This is a placeholder for actual tunnel health check logic
-        if not self.controller.umbilical:
-             raise ConnectionError("Umbilical connection is not established")
+        # 1. Check frpc status
+        if not self.controller.umbilical or not self.controller.umbilical.is_alive:
+            logger.error("Umbilical/frpc is not alive.")
+            return {"status": "VITALS_STATUS_ERROR", "error": "Umbilical dead"}
 
+        # 2. Heartbeat check to Ollama via tunnel
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                response = await client.get("http://localhost:11434/api/tags")
+                response.raise_for_status()
+        except Exception as e:
+            logger.error(f"Heartbeat failed: {e}")
+            return {"status": "VITALS_STATUS_ERROR", "error": str(e)}
+
+        return {"status": "VITALS_STATUS_OK"}
+
+    async def ensure_active(self):
+        vitals = await self.ping()
+        if vitals["status"] != "VITALS_STATUS_OK":
+             raise ConnectionError(f"VisionCortex inactive: {vitals.get('error')}")
         return True
 
     async def verify_asset(self, image_data: bytes | str):
         await self.ensure_active()
-        # This calls the VisionSkill through the tunnel
-        # The actual implementation of verify_asset would depend on VisionSkill's API
-        # but following the directive's logic:
-        return await self.skill.perceive(image_data)
+
+        # The VisionSkill in aura-worker uses 'generate' method
+        # We wrap it to match the perception needs
+        result = await self.skill.generate([image_data])
+
+        if "error" in result:
+             raise ValueError(f"Vision perception failed: {result['error']}")
+
+        return result
