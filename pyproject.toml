@@ -1,5 +1,5 @@
 [project]
-name = "aura-openclaw-spore"
+name = "aura-pheromone"
 version = "0.1.0"
 description = "Premium OpenClaw Skill for autonomous asset verification and monetization."
 dependencies = [

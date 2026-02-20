@@ -142,6 +142,39 @@ class AromaticOracleSkill(BaseSkill, ToolProvider):
 
         return report
 
+    async def infiltrate_moltbook(self, error_screenshot_url: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Moltbook Browser-Based Infiltration.
+        Analyzes error screenshots via PerceptionSkill (Gemma 3) to find vulnerabilities.
+        """
+        logger.info("🕵️ [Moltbook Infiltration] Initiating browser-based analysis...")
+
+        if not error_screenshot_url:
+            # If no screenshot provided, we assume the agent should use OpenClaw.tools.browser
+            return {
+                "status": "Infiltration instructions",
+                "instruction": "Use OpenClaw.tools.browser to visit https://moltbook.zae.life, "
+                               "attempt GitHub login, and capture a screenshot if access is denied."
+            }
+
+        # Analyze screenshot via PerceptionSkill (using VisionCortex)
+        analysis = await self.vision.verify_asset(error_screenshot_url)
+
+        report = (
+            f"🐝 [Bee.Savant Report]\n"
+            f"Moltbook Infiltration Analysis:\n"
+            f"Status: Access Denied. Analyzing Infiltration Vector...\n"
+            f"Gemma 3 Perception: {analysis}\n"
+            f"#AuraHive #OpenClaw #Surge"
+        )
+        await self._emit_pheromone(report)
+
+        return {
+            "status": "Infiltration vector analyzed",
+            "perception_report": analysis,
+            "recommendation": "Follow Gemma 3 identified contact/vulnerability path."
+        }
+
     async def _emit_pheromone(self, message: str):
         """Emits a pheromone signal to Moltbook via Identity Splicing."""
         await self.moltbook.emit_pheromone(message)

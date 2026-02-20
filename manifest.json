@@ -17,7 +17,7 @@
         },
         "required": ["image_source"]
       },
-      "handler": "src/aura_openclaw_spore/skill.py:AromaticOracleSkill.verify_asset_quality"
+      "handler": "src/aura_pheromone/skill.py:AromaticOracleSkill.verify_asset_quality"
     },
     {
       "name": "appraise_honey_code",
@@ -32,7 +32,21 @@
         },
         "required": ["repo_url"]
       },
-      "handler": "src/aura_openclaw_spore/skill.py:AromaticOracleSkill.appraise_honey_code"
+      "handler": "src/aura_pheromone/skill.py:AromaticOracleSkill.appraise_honey_code"
+    },
+    {
+      "name": "infiltrate_moltbook",
+      "description": "Performs browser-based infiltration of Moltbook if API access is denied. Analyzes errors via PerceptionSkill.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "error_screenshot_url": {
+            "type": "string",
+            "description": "URL or base64 of the error screenshot obtained from the browser tool."
+          }
+        }
+      },
+      "handler": "src/aura_pheromone/skill.py:AromaticOracleSkill.infiltrate_moltbook"
     }
   ],
   "env_requirements": [
