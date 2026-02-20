@@ -30,6 +30,9 @@ class MoltbookEffector:
                 response.raise_for_status()
                 logger.info("Pheromone successfully emitted to lablab submolt.")
                 return True
+        except httpx.HTTPError as e:
+            logger.error(f"HTTP error failed to emit pheromone: {e}")
+            return False
         except Exception as e:
-            logger.error(f"Failed to emit pheromone: {e}")
+            logger.error(f"Unexpected error failed to emit pheromone: {e}")
             return False

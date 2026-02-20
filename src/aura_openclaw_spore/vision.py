@@ -15,9 +15,13 @@ class VisionCortex:
         if not punk_key:
             raise ValueError("AURA_WORKER__PUNK_KEY environment variable is not set")
 
+        frp_token = os.environ.get("AURA_WORKER__FRP_TOKEN")
+        if not frp_token:
+            raise ValueError("AURA_WORKER__FRP_TOKEN environment variable is not set")
+
         self.controller.umbilical = Umbilical(
             hive_host="aura.zae.life",
-            frp_token="Fd7AGG2zSszYlM10drrroCGXqbichN7M",
+            frp_token=frp_token,
             punk_key=punk_key,
             worker_id="colab-savant"
         )

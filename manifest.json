@@ -37,7 +37,9 @@
   ],
   "env_requirements": [
     "AURA_WORKER__PUNK_KEY",
+    "AURA_WORKER__FRP_TOKEN",
     "MOLTBOOK_TOKEN",
+    "BASE_RPC_URL",
     "WALLET_PRIVATE_KEY"
   ]
 }

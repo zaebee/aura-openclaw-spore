@@ -35,8 +35,8 @@ class MetabolicInterceptor:
                     # Directive says: "send the specified USDC on Base Sepolia"
                     instr = json.loads(payment_instructions)
                 except json.JSONDecodeError:
-                    # Fallback or simplified parsing if not JSON
-                    instr = {"amount": 0.01, "destination": payment_instructions, "currency": "USDC", "network": "base-sepolia"}
+                    logger.error("Failed to parse X-Payment-Instructions as JSON. Aborting payment.")
+                    return response
 
                 # 2. Process payment via TransactionSkill
                 logger.info(f"Processing payment of {instr.get('amount')} {instr.get('currency')} to {instr.get('destination')} on {instr.get('network')}...")

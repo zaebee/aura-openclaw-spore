@@ -1,7 +1,11 @@
 import os
 import json
 import httpx
+import logging
 from typing import Any, Dict, Optional
+from urllib.parse import urlparse
+
+logger = logging.getLogger(__name__)
 from .vision import VisionCortex
 from .metabolism import MetabolicInterceptor
 from .effector import MoltbookEffector
@@ -35,8 +39,14 @@ class AromaticOracleSkill(BaseSkill, ToolProvider):
 
     async def _fetch_repo_data(self, repo_url: str):
         """Fetches repository data using the Metabolic Interceptor to handle x402."""
-        # Convert GitHub URL to API URL (simplified)
-        api_url = repo_url.replace("github.com", "api.github.com/repos")
+        # Robustly parse GitHub URL
+        parsed = urlparse(repo_url)
+        path_parts = parsed.path.strip("/").split("/")
+        if len(path_parts) < 2:
+            raise ValueError(f"Invalid GitHub repository URL: {repo_url}")
+
+        owner, repo = path_parts[0], path_parts[1]
+        api_url = f"https://api.github.com/repos/{owner}/{repo}"
 
         response = await self.metabolism.request_with_payment("GET", api_url)
         response.raise_for_status()
